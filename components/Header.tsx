@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Sun, Moon, ChevronDown, Download, ExternalLink } from 'lucide-react';
+import { Menu, X, Sun, Moon, ChevronDown, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { ConnectButton } from "thirdweb/react";
 import { client, wallets } from "../client";
@@ -20,7 +20,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     if (page === 'home' && !id) {
        window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (id) {
-       // Allow time for page render if switching pages
        setTimeout(() => {
           const element = document.getElementById(id);
           if (element) element.scrollIntoView({ behavior: 'smooth' });
@@ -62,29 +61,30 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     },
     { label: 'Support', action: () => window.open('https://t.me/fluidchain_support', '_blank') },
     { label: 'Listing', action: () => {} },
-    { label: 'Community', action: () => handleLinkClick('home', 'presale') }, // Points to social links area
+    { label: 'Community', action: () => handleLinkClick('home', 'presale') },
     { label: 'Docs', action: () => window.open('https://docs.fluid.finance', '_blank') },
   ];
 
   return (
-    <nav className="fixed w-full z-50 top-0 left-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 transition-colors duration-300">
+    <nav className="fixed w-full z-50 top-0 left-0 transition-all duration-300 py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md rounded-2xl px-6 border border-white/20 dark:border-slate-800/50 shadow-lg">
           
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer group" onClick={() => handleLinkClick('home')}>
-            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 transition-transform duration-300 group-hover:scale-110">
-                <path d="M20 15H80L70 35H45V45H65L60 60H45V90H25V15Z" fill="url(#logo_gradient)"/>
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 transition-transform duration-300 group-hover:scale-110">
                 <defs>
-                  <linearGradient id="logo_gradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#2563eb" />
-                    <stop offset="100%" stopColor="#06b6d4" />
+                  <linearGradient id="header_logo_gradient" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#22d3ee" />
+                    <stop offset="100%" stopColor="#2563eb" />
                   </linearGradient>
+                  <mask id="header_logo_mask">
+                     <rect width="100" height="100" fill="white"/>
+                     <path d="M46 105 Q 26 55 48 15" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
+                     <path d="M54 105 Q 74 55 52 30" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
+                  </mask>
                 </defs>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="5" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
+                <path d="M50 5 C 50 5 15 50 15 75 C 15 90 30 100 50 100 C 70 100 85 90 85 75 C 85 50 50 5 50 5 Z" fill="url(#header_logo_gradient)" mask="url(#header_logo_mask)" />
             </svg>
             <span className="font-bold text-xl tracking-tighter text-slate-900 dark:text-white transition-colors">
               FLUID
@@ -92,25 +92,22 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden xl:flex items-center space-x-4">
+          <div className="hidden xl:flex items-center space-x-1">
             {navStructure.map((item, index) => (
               <div key={index} className="relative group">
                 {item.children ? (
-                  // Dropdown Trigger
-                  <button className="flex items-center gap-1 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 font-bold text-sm px-2 py-2 transition-colors">
+                  <button className="flex items-center gap-1 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 font-bold text-sm px-3 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all">
                     {item.label} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
                   </button>
                 ) : (
-                  // Single Link
                   <button 
                     onClick={item.action} 
-                    className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 font-bold text-sm px-2 py-2 transition-colors"
+                    className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 font-bold text-sm px-3 py-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                   >
                     {item.label}
                   </button>
                 )}
 
-                {/* Dropdown Menu Content */}
                 {item.children && (
                   <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2">
                     <div className="w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden p-2">
@@ -134,19 +131,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           <div className="hidden md:flex items-center gap-2">
             <button 
                 onClick={() => handleLinkClick('wallet')}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="hidden lg:flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-                <Download size={14} /> Download Wallet
+                <Download size={14} /> Download
             </button>
             
-            <button 
-                onClick={() => handleLinkClick('buy')}
-                className="px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 rounded-lg hover:shadow-lg hover:shadow-blue-500/25 transition-all"
-            >
-                Buy FLUID
-            </button>
-
-            {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
               className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
@@ -154,21 +143,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-
-            <ConnectButton 
-              client={client} 
-              wallets={wallets}
-              theme={theme}
-              connectModal={{ size: "compact" }}
-            />
           </div>
 
           {/* Mobile menu button */}
           <div className="-mr-2 flex xl:hidden items-center gap-4">
-             {/* Only show theme toggle on mobile, wallet actions moved to inside menu for better space */}
             <button 
                 onClick={toggleTheme}
-                className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 md:hidden"
               >
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
@@ -185,13 +166,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="xl:hidden bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 absolute w-full left-0 top-16 shadow-2xl transition-colors max-h-[calc(100vh-64px)] overflow-y-auto">
+        <div className="xl:hidden bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 absolute w-full left-0 top-20 shadow-2xl transition-colors max-h-[calc(100vh-80px)] overflow-y-auto rounded-b-3xl">
           <div className="px-4 pt-4 pb-8 space-y-2">
             
             {navStructure.map((item, index) => (
               <div key={index}>
                 {item.children ? (
-                  // Mobile Accordion
                   <div>
                     <button 
                       onClick={() => toggleMobileSubmenu(item.label)}
@@ -201,7 +181,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                       <ChevronDown size={16} className={`transition-transform duration-200 ${mobileSubmenu === item.label ? 'rotate-180' : ''}`} />
                     </button>
                     
-                    {/* Submenu Items */}
                     {mobileSubmenu === item.label && (
                       <div className="pl-4 pr-2 space-y-1 mt-1 mb-2 border-l-2 border-slate-200 dark:border-slate-800 ml-4">
                         {item.children.map((child, cIndex) => (
@@ -220,7 +199,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                     )}
                   </div>
                 ) : (
-                  // Mobile Single Link
                   <button 
                     onClick={() => {
                       item.action();

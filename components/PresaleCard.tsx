@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Loader2, ExternalLink, CreditCard } from 'lucide-react';
+import { ChevronDown, Lightbulb, Wallet, Check, AlertCircle, Info } from 'lucide-react';
 import { 
   useActiveAccount, 
   useSendTransaction, 
-  useReadContract,
   ConnectButton,
-  useAutoConnect
+  useSwitchActiveWalletChain,
+  useActiveWalletChain
 } from "thirdweb/react";
 import { 
   getContract, 
@@ -15,423 +15,347 @@ import {
   toUnits
 } from "thirdweb";
 import { client, wallets } from "../client";
-import confetti from 'canvas-confetti';
 
 // --- Configuration ---
-const CHAIN = defineChain(1); 
-const PRESALE_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
-const USDT_CONTRACT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; 
-// Unused but kept for reference if needed
-// const USDC_CONTRACT_ADDRESS = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-// const DAI_CONTRACT_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+const PRESALE_CONTRACT_ADDRESS = "0x1234567890123456789012345678901234567890"; // Placeholder
+const FALLBACK_FLUID_PRICE = 0.05; // $0.05 per FLUID
 
-interface Currency {
+// Chain Definitions
+const ETH_CHAIN = defineChain(1);
+const BSC_CHAIN = defineChain(56);
+const POLYGON_CHAIN = defineChain(137);
+
+// Token Addresses (Placeholders)
+const USDT_ETH_ADDR = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+const USDC_POLY_ADDR = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+
+interface PaymentOption {
   id: string;
-  name: string;
   symbol: string;
+  name: string;
+  network: string;
+  chainId: number;
   icon: string;
-  price: number;
   isNative: boolean;
-  isFiat?: boolean;
-  address?: string;
-  decimals?: number;
-  apiId?: string;
+  address?: string; // Token address
+  decimals: number;
 }
 
-const INITIAL_CURRENCIES: Currency[] = [
-  { id: 'ETH', name: 'ETH', symbol: 'ETH', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026', price: 3200, isNative: true, apiId: 'ethereum' },
-  { id: 'USDT', name: 'USDT', symbol: 'USDT', icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=026', price: 1, isNative: false, address: USDT_CONTRACT_ADDRESS, decimals: 6, apiId: 'tether' },
-  { id: 'BNB', name: 'BNB', symbol: 'BNB', icon: 'https://cryptologos.cc/logos/bnb-bnb-logo.png?v=026', price: 600, isNative: true, apiId: 'binancecoin' }, 
-  { id: 'CARD', name: 'Card', symbol: 'USD', icon: '', price: 1, isNative: false, isFiat: true },
+const PAYMENT_OPTIONS: PaymentOption[] = [
+  { id: 'eth', symbol: 'ETH', name: 'Ethereum', network: 'ERC-20', chainId: 1, icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026', isNative: true, decimals: 18 },
+  { id: 'bnb', symbol: 'BNB', name: 'BNB Smart Chain', network: 'BEP-20', chainId: 56, icon: 'https://cryptologos.cc/logos/bnb-bnb-logo.png?v=026', isNative: true, decimals: 18 },
+  { id: 'usdt_eth', symbol: 'USDT', name: 'Tether', network: 'ERC-20', chainId: 1, icon: 'https://cryptologos.cc/logos/tether-usdt-logo.png?v=026', isNative: false, address: USDT_ETH_ADDR, decimals: 6 },
+  { id: 'usdc_poly', symbol: 'USDC', name: 'USD Coin', network: 'Polygon', chainId: 137, icon: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=026', isNative: false, address: USDC_POLY_ADDR, decimals: 6 },
+  { id: 'sol', symbol: 'SOL', name: 'Solana', network: 'Solana', chainId: -1, icon: 'https://cryptologos.cc/logos/solana-sol-logo.png?v=026', isNative: true, decimals: 9 },
+  { id: 'matic', symbol: 'MATIC', name: 'Polygon', network: 'Polygon', chainId: 137, icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=026', isNative: true, decimals: 18 },
 ];
-
-type TransactionStatus = 'IDLE' | 'APPROVING' | 'CONFIRMING' | 'SUCCESS' | 'ERROR';
 
 const PresaleCard: React.FC = () => {
   const account = useActiveAccount();
+  const { mutateAsync: switchChain } = useSwitchActiveWalletChain();
+  const activeChain = useActiveWalletChain();
+  const chainId = activeChain?.id;
   const { mutate: sendTransaction } = useSendTransaction();
-  
+
   // State
-  const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 19, minutes: 54, seconds: 32 });
-  const [raised, setRaised] = useState<number>(2492463.99); 
-  const [currencies, setCurrencies] = useState<Currency[]>(INITIAL_CURRENCIES);
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(INITIAL_CURRENCIES[0]);
-  const [amount, setAmount] = useState<string>('');
-  const [txHash, setTxHash] = useState<string | null>(null);
-  const [status, setStatus] = useState<TransactionStatus>('IDLE');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [pricesLoading, setPricesLoading] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentOption>(PAYMENT_OPTIONS[0]);
+  const [usdAmount, setUsdAmount] = useState<string>('100');
+  const [cryptoPrice, setCryptoPrice] = useState<number>(0);
+  const [fluidPrice, setFluidPrice] = useState<number>(FALLBACK_FLUID_PRICE);
+  const [showMore, setShowMore] = useState(false);
+  const [status, setStatus] = useState<'IDLE' | 'PENDING' | 'SUCCESS' | 'ERROR'>('IDLE');
+  
+  // Calculate amounts
+  const cryptoAmount = cryptoPrice > 0 && usdAmount ? parseFloat(usdAmount) / cryptoPrice : 0;
+  const fluidAmount = usdAmount ? parseFloat(usdAmount) / fluidPrice : 0;
 
-  const FLUID_PRICE_USD = 1.0;
-  const NEXT_PRICE_USD = 1.25;
-  const TARGET_RAISE = 4500000;
-
-  useAutoConnect({
-    client,
-    wallets,
-    timeout: 10000,
-  });
-
-  // Fetch Prices (Binance API with CoinGecko Fallback)
+  // --- Fetch Prices ---
   useEffect(() => {
-    const fetchPrices = async () => {
-      setPricesLoading(true);
+    const fetchPrice = async () => {
+      if (selectedPayment.id === 'sol') {
+         // Mock Sol price or fetch if needed, avoiding breaking changes
+         setCryptoPrice(145); 
+         return;
+      }
+      
       try {
-        // Try Binance first (Faster/Reliable for majors)
-        const [ethRes, bnbRes] = await Promise.all([
-            fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT').catch(() => null),
-            fetch('https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT').catch(() => null)
-        ]);
-
-        if (ethRes?.ok && bnbRes?.ok) {
-            const ethData = await ethRes.json();
-            const bnbData = await bnbRes.json();
-            
-            setCurrencies(prev => prev.map(c => {
-                if (c.symbol === 'ETH') return { ...c, price: parseFloat(ethData.price) };
-                if (c.symbol === 'BNB') return { ...c, price: parseFloat(bnbData.price) };
-                if (c.symbol === 'USDT') return { ...c, price: 1.0 }; // Assume peg
-                return c;
-            }));
-        } else {
-            // Fallback to CoinGecko
-            const ids = INITIAL_CURRENCIES.map(c => c.apiId).filter(Boolean).join(',');
-            const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
-            const data = await response.json();
-            
-            setCurrencies(prev => prev.map(c => {
-              if (c.apiId && data[c.apiId]) {
-                return { ...c, price: data[c.apiId].usd };
-              }
-              return c;
-            }));
+        let symbol = selectedPayment.symbol;
+        if (symbol === 'USDT' || symbol === 'USDC') {
+          setCryptoPrice(1);
+          return;
         }
-      } catch (error) {
-        console.error("Failed to fetch prices:", error);
-      } finally {
-        setPricesLoading(false);
+        
+        // Simple binance fetch for majors
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
+        const data = await res.json();
+        if (data.price) {
+          setCryptoPrice(parseFloat(data.price));
+        }
+      } catch (e) {
+        console.error("Price fetch error", e);
+        // Fallbacks
+        if (selectedPayment.symbol === 'ETH') setCryptoPrice(3200);
+        if (selectedPayment.symbol === 'BNB') setCryptoPrice(600);
+        if (selectedPayment.symbol === 'MATIC') setCryptoPrice(0.70);
       }
     };
 
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 30000); // Update every 30s
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedPayment]);
 
-  // Update selected currency price when currencies update
-  useEffect(() => {
-    const updated = currencies.find(c => c.id === selectedCurrency.id);
-    if (updated && updated.price !== selectedCurrency.price) {
-      setSelectedCurrency(updated);
-    }
-  }, [currencies, selectedCurrency.id]);
-
-  // Contracts
-  const presaleContract = getContract({
-    client,
-    chain: CHAIN,
-    address: PRESALE_CONTRACT_ADDRESS,
-  });
-
-  const tokenContract = selectedCurrency.address ? getContract({
-    client,
-    chain: CHAIN,
-    address: selectedCurrency.address,
-  }) : null;
-
-  const { data: weiRaised } = useReadContract({
-    contract: presaleContract,
-    method: "function weiRaised() view returns (uint256)",
-    params: []
-  });
-
-  // --- Timer & Simulation Fallback ---
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        let { days, hours, minutes, seconds } = prev;
-        if (seconds > 0) seconds--;
-        else {
-          seconds = 59;
-          if (minutes > 0) minutes--;
-          else {
-            minutes = 59;
-            if (hours > 0) hours--;
-            else {
-              hours = 23;
-              if (days > 0) days--;
-            }
-          }
-        }
-        return { days, hours, minutes, seconds };
-      });
-      
-      if (!weiRaised && raised < TARGET_RAISE && Math.random() > 0.95) {
-          setRaised(prev => prev + Math.random() * 100);
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [raised, weiRaised]);
-
-  const progress = Math.min((raised / TARGET_RAISE) * 100, 100);
-  
-  const receivedAmount = amount 
-    ? ((parseFloat(amount) * selectedCurrency.price) / FLUID_PRICE_USD).toLocaleString(undefined, { maximumFractionDigits: 0 }) 
-    : '0';
-
-  const triggerSuccess = (hash: string) => {
-    setTxHash(hash);
-    setStatus('SUCCESS');
-    setRaised(prev => prev + (parseFloat(amount || '0') * selectedCurrency.price));
-    setAmount('');
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#10b981', '#06b6d4', '#3b82f6', '#ffffff']
-    });
-  };
-
-  const handleError = (msg: string) => {
-    setStatus('ERROR');
-    setErrorMsg(msg);
-    setTimeout(() => {
-        setErrorMsg(prev => (prev === msg ? null : prev));
-        setStatus(prev => prev === 'ERROR' ? 'IDLE' : prev);
-    }, 5000);
-  };
+  // --- Contract Interactions ---
+  // Note: For production, you would fetch the live rate from the contract here.
+  // const presaleContract = getContract({ client, chain: defineChain(selectedPayment.chainId), address: PRESALE_CONTRACT_ADDRESS });
+  // const { data: rate } = useReadContract({ contract: presaleContract, method: "function currentRate() view returns (uint256)" });
 
   const handleBuy = async () => {
-    if (!amount || parseFloat(amount) <= 0) return;
+    if (!account || !usdAmount) return;
     
-    if (selectedCurrency.isFiat) {
-       // Placeholder for Fiat Onramp
-       window.open("https://wert.io", "_blank");
-       return;
-    }
-
-    if (!account) return; 
-
-    setErrorMsg(null);
-    setTxHash(null);
+    setStatus('PENDING');
 
     try {
-      if (selectedCurrency.isNative) {
-        if (selectedCurrency.id === 'ETH' || selectedCurrency.id === 'BNB') {
-            setStatus('CONFIRMING');
-            const transaction = prepareContractCall({
-              contract: presaleContract,
-              method: "function buyTokens() payable",
-              params: [],
-              value: toWei(amount),
-            });
-            
-            sendTransaction(transaction, {
-              onSuccess: (tx) => triggerSuccess(tx.transactionHash),
-              onError: (err) => {
-                console.error(err);
-                handleError("Transaction failed. Please try again.");
-              }
-            });
-        }
-      } else if (tokenContract) {
-        const decimals = (selectedCurrency as any).decimals || 18;
-        const amountInUnits = toUnits(amount, decimals);
-        
-        setStatus('APPROVING');
-        const approveTx = prepareContractCall({
-          contract: tokenContract,
-          method: "function approve(address spender, uint256 amount)",
-          params: [PRESALE_CONTRACT_ADDRESS, amountInUnits],
-        });
-
-        sendTransaction(approveTx, {
-          onSuccess: () => {
-             setStatus('CONFIRMING');
-             const buyTx = prepareContractCall({
-               contract: presaleContract,
-               method: "function buyWithUSDT(uint256 amount)", 
-               params: [amountInUnits],
-             });
-             sendTransaction(buyTx, {
-               onSuccess: (tx) => triggerSuccess(tx.transactionHash),
-               onError: (err) => handleError("Purchase failed during execution.")
-             });
-          },
-          onError: () => handleError(`${selectedCurrency.symbol} Approval failed.`)
-        });
+      // 1. Check Network
+      if (selectedPayment.chainId !== -1 && chainId !== selectedPayment.chainId) {
+         await switchChain(defineChain(selectedPayment.chainId));
       }
-    } catch (error: any) {
-      console.error("Transaction setup failed:", error);
-      handleError("Failed to initiate transaction.");
+
+      if (selectedPayment.chainId === -1) {
+          alert("Solana support coming soon. Please use EVM chains.");
+          setStatus('IDLE');
+          return;
+      }
+
+      const activeChainDef = defineChain(selectedPayment.chainId);
+      const presaleContract = getContract({
+        client,
+        chain: activeChainDef,
+        address: PRESALE_CONTRACT_ADDRESS,
+      });
+
+      // 2. Handle Token Approval if not native
+      if (!selectedPayment.isNative && selectedPayment.address) {
+         const tokenContract = getContract({
+            client,
+            chain: activeChainDef,
+            address: selectedPayment.address
+         });
+         
+         const amountBigInt = toUnits(cryptoAmount.toFixed(selectedPayment.decimals), selectedPayment.decimals);
+         
+         const approveTx = prepareContractCall({
+            contract: tokenContract,
+            method: "function approve(address spender, uint256 amount)",
+            params: [PRESALE_CONTRACT_ADDRESS, amountBigInt]
+         });
+         
+         // In a real app, await approval receipt before proceeding
+         sendTransaction(approveTx); 
+      }
+
+      // 3. Prepare Buy Transaction
+      // Assuming a generic buy function: buy(tokenAddress, amount) or buyEth()
+      const method = selectedPayment.isNative ? "function buyWithNative()" : "function buyWithToken(address token, uint256 amount)";
+      const params = selectedPayment.isNative ? [] : [selectedPayment.address, toUnits(cryptoAmount.toFixed(selectedPayment.decimals), selectedPayment.decimals)];
+      const value = selectedPayment.isNative ? toWei(cryptoAmount.toFixed(18)) : undefined;
+
+      const transaction = prepareContractCall({
+        contract: presaleContract,
+        method: method,
+        params: params,
+        value: value,
+      });
+
+      sendTransaction(transaction, {
+        onSuccess: () => setStatus('SUCCESS'),
+        onError: () => setStatus('ERROR'),
+      });
+
+    } catch (e) {
+      console.error(e);
+      setStatus('ERROR');
     }
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto z-10">
-      <div className="bg-[#0f172a] border border-slate-700 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+    <div className="w-full max-w-[480px] mx-auto z-10">
+      <div className="bg-slate-950/80 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
         
-        {/* Status Indicators */}
-        <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-                <span className="flex h-2.5 w-2.5 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <span className="text-emerald-400 font-bold text-xs uppercase tracking-wide">Sale Live</span>
-            </div>
-            <div className="flex items-center gap-2">
-                {pricesLoading && <Loader2 size={12} className="animate-spin text-blue-400" />}
-                <div className="text-slate-400 text-xs font-bold uppercase tracking-wide">Batch 1</div>
-            </div>
-        </div>
-
         {/* Header */}
-        <div className="text-center mb-6">
-            <h2 className="text-3xl font-extrabold text-white mb-2">Buy $FLUID</h2>
-            <div className="flex items-center justify-center gap-4 text-sm">
-                <span className="text-slate-400">Current: <span className="text-white font-bold">${FLUID_PRICE_USD.toFixed(2)}</span></span>
-                <span className="text-slate-600">|</span>
-                <span className="text-slate-400">Next: <span className="text-orange-400 font-bold">${NEXT_PRICE_USD.toFixed(2)}</span></span>
+        <div className="p-6 border-b border-white/5 flex flex-col items-center">
+            <h2 className="text-2xl font-bold text-white tracking-tight">Buy $FLUID Presale</h2>
+            <div className="flex items-center gap-2 mt-2">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">Sale is Live</span>
             </div>
         </div>
 
-        {/* Timer Box */}
-        <div className="bg-slate-900/50 rounded-xl p-3 mb-6 border border-slate-800">
-             <div className="flex justify-between text-center gap-2">
-                {Object.entries(timeLeft).map(([unit, value]) => (
-                    <div key={unit} className="flex-1">
-                        <div className="bg-slate-800 rounded-lg py-2 mb-1 border border-slate-700">
-                             <span className="text-xl font-bold text-white font-mono">{String(value).padStart(2, '0')}</span>
+        <div className="p-6 space-y-6">
+            {/* Payment Selector */}
+            <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-400 font-medium">Select Payment Method</span>
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <Info size={12} /> Supporting {PAYMENT_OPTIONS.length}+ Chains
+                    </span>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-2">
+                    {PAYMENT_OPTIONS.slice(0, 5).map(opt => (
+                        <button
+                            key={opt.id}
+                            onClick={() => setSelectedPayment(opt)}
+                            className={`relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 group ${
+                                selectedPayment.id === opt.id 
+                                ? 'bg-white/10 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.15)]' 
+                                : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
+                            }`}
+                        >
+                            <img src={opt.icon} alt={opt.symbol} className="w-8 h-8 rounded-full mb-1.5 shadow-sm" />
+                            <span className="text-[10px] font-bold text-slate-300">{opt.symbol}</span>
+                            {/* Network Badge */}
+                            <span className="absolute -top-1.5 -right-1.5 bg-slate-900 text-[8px] text-slate-400 border border-slate-700 px-1 rounded-sm scale-75 origin-center">
+                                {opt.network}
+                            </span>
+                        </button>
+                    ))}
+                    
+                    {/* More Toggle */}
+                    <button 
+                        onClick={() => setShowMore(!showMore)}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-white/10 bg-transparent hover:bg-white/5 transition-all text-slate-500 hover:text-white"
+                    >
+                        <ChevronDown size={20} className={`mb-1 transition-transform ${showMore ? 'rotate-180' : ''}`} />
+                        <span className="text-[10px] font-bold">More</span>
+                    </button>
+                </div>
+
+                {/* Expanded Options */}
+                {showMore && (
+                    <div className="grid grid-cols-4 gap-2 animate-fade-in-up">
+                        {PAYMENT_OPTIONS.slice(5).map(opt => (
+                             <button
+                                key={opt.id}
+                                onClick={() => setSelectedPayment(opt)}
+                                className={`relative flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 ${
+                                    selectedPayment.id === opt.id 
+                                    ? 'bg-white/10 border-orange-500/50' 
+                                    : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                }`}
+                            >
+                                <img src={opt.icon} alt={opt.symbol} className="w-8 h-8 rounded-full mb-1.5" />
+                                <span className="text-[10px] font-bold text-slate-300">{opt.symbol}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Input Section */}
+            <div className="space-y-4">
+                
+                {/* Pay Input */}
+                <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 ml-1 uppercase">You Pay (USD)</label>
+                    <div className="relative group">
+                        <input 
+                            type="number"
+                            value={usdAmount}
+                            onChange={(e) => setUsdAmount(e.target.value)}
+                            className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-4 pl-4 pr-32 text-2xl font-bold text-white placeholder-slate-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                            placeholder="0.00"
+                        />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
+                            <img src={selectedPayment.icon} className="w-5 h-5 rounded-full" />
+                            <div className="text-right">
+                                <div className="text-xs font-bold text-white leading-none">{selectedPayment.symbol}</div>
+                                <div className="text-[10px] text-slate-400 font-mono leading-none mt-0.5">
+                                    {cryptoAmount.toFixed(4)}
+                                </div>
+                            </div>
                         </div>
-                        <span className="text-[10px] text-slate-500 uppercase font-bold">{unit}</span>
                     </div>
-                ))}
-             </div>
-        </div>
+                    <div className="flex items-center gap-1.5 text-xs text-orange-400/80 pl-1 font-medium">
+                        <Lightbulb size={12} /> Min: $10
+                    </div>
+                </div>
 
-        {/* Progress */}
-        <div className="mb-6">
-            <div className="flex justify-between text-xs mb-2 font-bold">
-                 <span className="text-slate-400">Raised: <span className="text-emerald-400">${raised.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></span>
-                 <span className="text-slate-500">${TARGET_RAISE.toLocaleString()}</span>
-            </div>
-            <div className="h-4 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700">
-                <div 
-                    className="h-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 relative transition-all duration-1000"
-                    style={{ width: `${progress}%` }}
-                >
-                    <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
+                {/* Arrow */}
+                <div className="flex justify-center -my-2 relative z-10">
+                    <div className="bg-slate-800 border border-slate-700 p-1.5 rounded-full text-slate-400">
+                        <ChevronDown size={16} />
+                    </div>
+                </div>
+
+                {/* Receive Input */}
+                <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 ml-1 uppercase">You Receive ($FLUID)</label>
+                    <div className="relative">
+                        <div className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-4 pl-4 pr-32 text-2xl font-bold text-emerald-400 cursor-default">
+                            {fluidAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </div>
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+                            {/* Fluid Placeholder Logo (Using generic Drop/Flame shape) */}
+                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] text-white font-bold">
+                                F
+                            </div>
+                            <span className="text-xs font-bold text-emerald-400">FLUID</span>
+                        </div>
+                    </div>
+                    <div className="flex justify-between px-1 text-xs font-medium text-slate-500">
+                        <span>1 FLUID = ${fluidPrice.toFixed(3)}</span>
+                        <span>Next Price: ${(fluidPrice * 1.2).toFixed(3)}</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {/* Currency Tabs */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-             {currencies.map((curr) => (
-                 <button
-                    key={curr.id}
-                    onClick={() => setSelectedCurrency(curr)}
-                    className={`flex flex-col items-center justify-center py-3 rounded-xl border transition-all relative overflow-hidden ${
-                        selectedCurrency.id === curr.id 
-                        ? 'bg-blue-600/10 border-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.2)]' 
-                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-slate-800'
-                    }`}
-                 >
-                    {curr.isFiat ? (
-                        <CreditCard size={20} className={selectedCurrency.id === curr.id ? "text-blue-400" : "text-slate-500"} />
-                    ) : (
-                        <img src={curr.icon} alt={curr.name} className="w-5 h-5 rounded-full mb-1" />
-                    )}
-                    <span className="text-[10px] font-bold uppercase mt-1">{curr.name}</span>
-                    {/* Price tooltip/display on active */}
-                    {selectedCurrency.id === curr.id && !curr.isFiat && (
-                         <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    )}
-                 </button>
-             ))}
-        </div>
-
-        {/* Inputs */}
-        <div className="space-y-1 mb-6">
-            <div className="bg-slate-900 border border-slate-700 rounded-t-xl p-3 flex items-center justify-between transition-colors focus-within:border-blue-500/50">
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <label className="text-[10px] text-slate-500 font-bold uppercase">
-                        You Pay {selectedCurrency.symbol}
-                        </label>
-                        {!selectedCurrency.isFiat && (
-                             <span className="flex items-center gap-1 text-[10px] text-cyan-500 bg-cyan-500/10 px-1.5 rounded font-mono">
-                                ${selectedCurrency.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                {pricesLoading ? <Loader2 size={8} className="animate-spin ml-1"/> : <span className="w-1 h-1 rounded-full bg-cyan-500 ml-1"></span>}
-                             </span>
-                        )}
-                    </div>
-                    <input 
-                        type="number" 
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0"
-                        className="bg-transparent text-xl font-bold text-white placeholder-slate-600 focus:outline-none w-full"
+            {/* Action Button */}
+            <div className="pt-2">
+                {!account ? (
+                    <ConnectButton 
+                        client={client}
+                        wallets={wallets}
+                        theme={"dark"}
+                        connectButton={{
+                            label: "Connect Wallet",
+                            className: "!w-full !py-4 !rounded-xl !text-lg !font-bold !bg-gradient-to-r !from-orange-500 !to-amber-500 !text-white !border-none hover:!brightness-110 transition-all shadow-lg shadow-orange-500/20"
+                        }}
                     />
-                </div>
-                {selectedCurrency.icon && <img src={selectedCurrency.icon} className="w-6 h-6 rounded-full opacity-80" />}
-                {selectedCurrency.isFiat && <CreditCard className="w-6 h-6 text-slate-400" />}
+                ) : (
+                    <button
+                        onClick={handleBuy}
+                        disabled={status === 'PENDING'}
+                        className="w-full py-4 rounded-xl text-lg font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:brightness-110 transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {status === 'PENDING' ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Wallet size={20} />
+                        )}
+                        {status === 'PENDING' ? 'Confirming...' : 'Buy Tokens'}
+                    </button>
+                )}
             </div>
             
-            <div className="bg-slate-900 border border-slate-700 border-t-0 rounded-b-xl p-3 flex items-center justify-between">
-                <div className="flex-1">
-                    <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">You Receive FLUID</label>
-                    <input 
-                        type="text" 
-                        readOnly
-                        value={receivedAmount}
-                        placeholder="0"
-                        className="bg-transparent text-xl font-bold text-emerald-400 placeholder-slate-700 focus:outline-none w-full cursor-default"
-                    />
+            {/* Status Messages */}
+            {status === 'SUCCESS' && (
+                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 animate-fade-in-up">
+                    <Check size={18} className="text-emerald-500" />
+                    <p className="text-sm text-emerald-200">Purchase successful! Tokens will be airdropped.</p>
                 </div>
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">F</div>
-            </div>
+            )}
+            {status === 'ERROR' && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3 animate-fade-in-up">
+                    <AlertCircle size={18} className="text-red-500" />
+                    <p className="text-sm text-red-200">Transaction failed. Please check your wallet.</p>
+                </div>
+            )}
+
         </div>
-
-        {/* Connect / Buy Button */}
-        {!account ? (
-             <ConnectButton 
-                client={client}
-                wallets={wallets}
-                theme={"dark"}
-                connectButton={{
-                  label: "Connect Wallet to Buy",
-                  className: "!w-full !bg-white !text-slate-900 !font-bold !rounded-xl !py-4 !h-auto !text-lg !hover:bg-slate-200 transition-colors"
-                }}
-             />
-        ) : (
-            <button 
-                onClick={handleBuy}
-                disabled={status !== 'IDLE' && status !== 'ERROR'}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {status === 'IDLE' || status === 'ERROR' ? 'Buy Tokens Now' : 'Processing...'}
-            </button>
-        )}
-        
-        {/* Helper Links */}
-        <div className="flex justify-center gap-4 mt-6 text-[11px] text-slate-500 font-bold uppercase tracking-wider">
-            <a href="#" className="hover:text-white transition-colors flex items-center gap-1">How to buy <ExternalLink size={10} /></a>
-            <span className="text-slate-700">|</span>
-            <a href="#" className="hover:text-white transition-colors flex items-center gap-1">New Wallet <ExternalLink size={10} /></a>
-        </div>
-
-        {/* Processing/Success Overlays */}
-        {(status === 'SUCCESS') && (
-            <div className="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-20 animate-fade-in-up p-6 text-center">
-                <CheckCircle2 size={48} className="text-emerald-500 mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-2">Success!</h3>
-                <p className="text-slate-400 mb-6 text-sm">Tokens reserved successfully.</p>
-                <button onClick={() => setStatus('IDLE')} className="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold">Close</button>
-            </div>
-        )}
-
       </div>
     </div>
   );

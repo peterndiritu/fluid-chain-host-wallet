@@ -48,8 +48,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
   return (
     <>
-        {/* Hero Section - Centered Layout */}
-        <section id="presale" className="relative pt-20 pb-0 lg:pt-28 lg:pb-0 overflow-hidden min-h-[90vh] flex items-center">
+        {/* Hero Section - Compact Layout */}
+        <section id="presale" className="relative pt-32 pb-6 overflow-hidden">
           {/* Background Elements */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]"></div>
@@ -79,9 +79,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                   <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed font-medium">
                     The first Layer-1 blockchain delivering <strong>2M+ TPS</strong> with zero-downtime hosting. Secure, Multichain Non-Custodial Crypto Wallet.
                   </p>
+
+                  <div className="mb-12">
+                     <button 
+                        onClick={() => onNavigate('buy')}
+                        className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-1"
+                      >
+                        Buy FLUID
+                      </button>
+                  </div>
                   
                   {/* Partners / Audited By Marquee */}
-                  <div className="pt-4 border-t border-slate-200 dark:border-slate-800/50 w-full overflow-hidden">
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800/50 w-full overflow-hidden">
                     <p className="text-xs text-center text-slate-500 uppercase font-bold tracking-widest mb-3">Partners & Technologies</p>
                     
                     <div className="relative flex overflow-x-hidden group max-w-[100vw]">
@@ -126,7 +135,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
         </section>
 
-        {/* Performance Metrics Section */}
+        {/* Performance Metrics Section - Tightened */}
         <section className="py-4 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
