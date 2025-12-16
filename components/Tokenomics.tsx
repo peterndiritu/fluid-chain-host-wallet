@@ -51,7 +51,7 @@ const data = [
 
 const Tokenomics: React.FC = () => {
   return (
-    <section id="tokenomics" className="py-8 bg-white dark:bg-slate-900/50 relative overflow-hidden transition-colors duration-300">
+    <section id="tokenomics" className="py-8 bg-transparent relative overflow-hidden transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         <div className="text-center mb-8">
@@ -66,12 +66,12 @@ const Tokenomics: React.FC = () => {
               {data.map((item, index) => (
                   <div 
                     key={item.name} 
-                    className={`bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:border-opacity-50 transition-all hover:-translate-y-1 duration-300 group shadow-sm dark:shadow-none ${index === 0 ? 'sm:col-span-2 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950' : ''}`}
-                    style={{ borderColor: `${item.color}30` }}
+                    className={`scroll-card bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-5 hover:border-opacity-50 transition-all hover:-translate-y-1 duration-300 group shadow-sm dark:shadow-none ${index === 0 ? 'sm:col-span-2' : ''}`}
+                    style={{ borderColor: `${item.color}40` }}
                   >
                       <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-3">
-                              <div className="p-2.5 rounded-xl bg-opacity-10 text-white" style={{ backgroundColor: `${item.color}20`, color: item.color }}>
+                              <div className="p-2.5 rounded-xl bg-opacity-20 text-white" style={{ backgroundColor: `${item.color}20`, color: item.color }}>
                                   <item.icon size={20} />
                               </div>
                               <div>
@@ -83,13 +83,13 @@ const Tokenomics: React.FC = () => {
                       </div>
                       
                       <div className="space-y-2">
-                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div className="w-full h-1.5 bg-slate-200/50 dark:bg-slate-800/50 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${item.value}%`, backgroundColor: item.color }}></div>
                           </div>
                           <div className="flex justify-between items-center text-xs">
                               <span className="text-slate-700 dark:text-slate-200 font-bold">{item.amount} FLUID</span>
                               {item.vesting && (
-                                  <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold">
+                                  <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 px-2 py-0.5 rounded text-[10px] font-bold">
                                       <Clock size={10} /> {item.vesting}
                                   </span>
                               )}

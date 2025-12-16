@@ -61,7 +61,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               
                   <button 
                     onClick={() => onNavigate('buy')}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-slate-700/50 mb-6 animate-fade-in-up backdrop-blur-sm hover:bg-slate-800/50 transition-colors group cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/40 border border-slate-700/50 mb-6 animate-fade-in-up backdrop-blur-sm hover:bg-slate-800/50 transition-colors group cursor-pointer"
                   >
                     <span className="flex h-2 w-2 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -109,20 +109,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                                     <span className="font-bold text-xl text-slate-800 dark:text-white">{p.name}</span>
                                 </div>
                             ))}
-                            {/* Set 3 */}
-                            {partners.map((p, i) => (
-                                <div key={`p3-${i}`} className="flex items-center gap-3">
-                                    <p.icon size={24} className="text-slate-800 dark:text-white" />
-                                    <span className="font-bold text-xl text-slate-800 dark:text-white">{p.name}</span>
-                                </div>
-                            ))}
-                            {/* Set 4 */}
-                            {partners.map((p, i) => (
-                                <div key={`p4-${i}`} className="flex items-center gap-3">
-                                    <p.icon size={24} className="text-slate-800 dark:text-white" />
-                                    <span className="font-bold text-xl text-slate-800 dark:text-white">{p.name}</span>
-                                </div>
-                            ))}
                         </div>
                         
                         {/* Gradient Masks for fade effect */}
@@ -136,12 +122,12 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </section>
 
         {/* Performance Metrics Section - Tightened */}
-        <section className="py-4 bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+        <section className="py-4 bg-transparent border-y border-slate-200 dark:border-slate-800/50">
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                  {/* Card 1 */}
-                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 transition-colors shadow-sm group">
-                    <div className="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center mb-3 text-cyan-500 group-hover:scale-110 transition-transform">
+                 <div className="scroll-card bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 hover:border-cyan-400 transition-colors shadow-sm group">
+                    <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3 text-cyan-500 group-hover:scale-110 transition-transform">
                         <Zap size={20}/>
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mb-1 font-bold">Peak TPS</p>
@@ -151,8 +137,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                     </div>
                  </div>
                  {/* Card 2 */}
-                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 transition-colors shadow-sm group">
-                    <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3 text-blue-500 group-hover:scale-110 transition-transform">
+                 <div className="scroll-card bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 hover:border-cyan-400 transition-colors shadow-sm group">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3 text-blue-500 group-hover:scale-110 transition-transform">
                         <Layers size={20}/>
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mb-1 font-bold">Scalability</p>
@@ -162,8 +148,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                     </div>
                  </div>
                  {/* Card 3 */}
-                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 transition-colors shadow-sm group">
-                     <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-3 text-purple-500 group-hover:scale-110 transition-transform">
+                 <div className="scroll-card bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 hover:border-cyan-400 transition-colors shadow-sm group">
+                     <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mb-3 text-purple-500 group-hover:scale-110 transition-transform">
                         <Code2 size={20}/>
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mb-1 font-bold">Finality</p>
@@ -173,8 +159,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                     </div>
                  </div>
                  {/* Card 4 */}
-                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 hover:border-cyan-400 transition-colors shadow-sm group">
-                     <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center mb-3 text-orange-500 group-hover:scale-110 transition-transform">
+                 <div className="scroll-card bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 hover:border-cyan-400 transition-colors shadow-sm group">
+                     <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3 text-orange-500 group-hover:scale-110 transition-transform">
                         <Smartphone size={20}/>
                     </div>
                     <p className="text-slate-500 dark:text-slate-400 text-sm mb-1 font-bold">Mobile</p>
@@ -188,7 +174,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </section>
 
         {/* Features Section - Revolutionary */}
-        <section id="features" className="py-8 bg-white dark:bg-slate-950 relative">
+        <section id="features" className="py-8 bg-transparent relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl md:text-5xl font-extrabold mb-4 text-slate-900 dark:text-white text-cyan-400">Revolutionary Features</h2>
@@ -199,85 +185,85 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {/* Feature 1 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Zap size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">1B+ TPS</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">1B+ TPS</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Ultra-Fast Processing</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Ultra-Fast Processing</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Revolutionary architecture enabling 1+ billion transactions per second with sub-millisecond finality.
                 </p>
               </div>
 
               {/* Feature 2 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Shield size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">Quantum-Safe</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">Quantum-Safe</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Military-Grade Security</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Military-Grade Security</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Advanced cryptographic protocols and quantum-resistant algorithms ensure maximum security for hosting and assets.
                 </p>
               </div>
 
               {/* Feature 3 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Code2 size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">100% Compatible</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">100% Compatible</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Full EVM Compatibility</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Full EVM Compatibility</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Seamlessly deploy existing Ethereum smart contracts without any modifications. Essential for DeFi interoperability.
                 </p>
               </div>
 
               {/* Feature 4 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Layers size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">Auto-Scale</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">Auto-Scale</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Infinite Scalability</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Infinite Scalability</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Dynamic sharding and parallel processing scale automatically with network demand, perfect for Parmaweb hosting.
                 </p>
               </div>
 
                {/* Feature 5 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Wallet size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">All Wallets</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">All Wallets</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Universal Wallet Support</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Universal Wallet Support</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Works with MetaMask, WalletConnect, and all major EVM-compatible wallets.
                 </p>
               </div>
 
                {/* Feature 6 */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 hover:border-cyan-500/50 transition-colors group">
+              <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
                 <div className="flex justify-between items-start mb-4">
-                   <div className="w-10 h-10 bg-blue-900/20 rounded-xl flex items-center justify-center text-cyan-400">
+                   <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
                       <Globe size={20} />
                    </div>
-                   <span className="px-3 py-1 rounded-full bg-slate-800 text-cyan-400 text-xs font-bold border border-slate-700">150+ Countries</span>
+                   <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">150+ Countries</span>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white">Global Infrastructure</h3>
-                <p className="text-slate-400 leading-relaxed text-sm">
+                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Global Infrastructure</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   Distributed node network spanning 150+ countries for optimal performance worldwide.
                 </p>
               </div>

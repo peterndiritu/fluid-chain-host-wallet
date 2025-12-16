@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X, Sun, Moon, ChevronDown, Download } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { ConnectButton } from "thirdweb/react";
@@ -13,6 +13,34 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mobileSubmenu, setMobileSubmenu] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
+
+  // Scroll State for Smart Navbar
+  const [isVisible, setIsVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Determine if we are at the top (for transparency)
+      setIsScrolled(currentScrollY > 20);
+
+      // Determine scroll direction (for visibility)
+      // Hide if scrolling down AND we are not at the very top (avoid flickering at top)
+      if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLinkClick = (page: string, id?: string) => {
     onNavigate(page);
@@ -66,9 +94,19 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
   ];
 
   return (
-    <nav className="fixed w-full z-50 top-0 left-0 transition-all duration-300 py-4">
+    <nav 
+      className={`fixed w-full z-50 top-0 left-0 transition-all duration-300 py-4 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 bg-white/50 dark:bg-slate-950/50 backdrop-blur-md rounded-2xl px-6 border border-white/20 dark:border-slate-800/50 shadow-lg">
+        <div 
+          className={`flex items-center justify-between h-16 rounded-2xl px-6 transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-white/50 dark:bg-slate-950/50 backdrop-blur-md border border-white/20 dark:border-slate-800/50 shadow-lg' 
+              : 'bg-transparent border-transparent'
+          }`}
+        >
           
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer group" onClick={() => handleLinkClick('home')}>
