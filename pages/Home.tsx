@@ -123,12 +123,6 @@ Host apps forever on the Fluid Blockchain with unmatched speed and security.
       {/* How It Works Section */}
       <HowItWorks />
 
-      {/* Fluid Assistant Section */}
-      <FluidAssistant />
-
-      {/* AI Editor Section */}
-      <GeminiImageEditor />
-
     </div>
   );
 };
