@@ -1,1 +1,0 @@
-// This file is deprecated. Wallet connection is handled by Thirdweb.
