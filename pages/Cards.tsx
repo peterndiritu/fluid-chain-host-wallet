@@ -40,13 +40,13 @@ const CardsPage: React.FC = () => {
                       <div className="w-10 h-6 bg-amber-200/20 rounded border border-amber-200/40"></div>
                       <div className="text-white/50 text-xs font-mono">((( )))</div>
                    </div>
-                   <div className="font-mono text-xl text-white tracking-widest mb-2">**** **** **** 4289</div>
+                   <div className="font-mono text-xl text-white tracking-widest mb-2">**** **** **** **01</div>
                    <div className="flex justify-between items-end">
                       <div>
                          <span className="text-[10px] text-slate-400 uppercase block">Card Holder</span>
-                         <span className="text-sm text-white font-bold">ALEXANDER FLUID</span>
+                         <span className="text-sm text-white font-bold">________ FLUID</span>
                       </div>
-                      <span className="text-cyan-400 font-bold flex items-center gap-1"><CreditCard size={14} /> Crypto Card</span>
+                      <span className="text-cyan-400 font-bold flex items-center gap-1"><CreditCard size={14} /> Fluid Card</span>
                    </div>
                </div>
            </div>
