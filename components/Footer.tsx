@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="py-12 relative z-10">
+    <footer className="py-12 relative z-10 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 text-center">
           
           {/* Downloadable Logo Section */}
@@ -100,7 +100,7 @@ const Footer: React.FC = () => {
                 href={link.url}
                 target="_blank" 
                 rel="noreferrer"
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-black transition-all duration-300"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200/50 dark:bg-white/10 text-slate-600 dark:text-slate-400 hover:bg-blue-600 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-black transition-all duration-300 backdrop-blur-sm"
                 title={link.name}
               >
                 {link.icon}

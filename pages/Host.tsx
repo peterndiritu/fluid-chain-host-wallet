@@ -1,7 +1,143 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Server, Database, Cloud, Lock, Terminal, Cpu, Globe, ArrowRight } from 'lucide-react';
 
+interface TerminalLine {
+  type: 'command' | 'output';
+  content: string | string[];
+}
+
 const HostPage: React.FC = () => {
+  const [terminalHistory, setTerminalHistory] = useState<TerminalLine[]>([]);
+  const [currentLine, setCurrentLine] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const script = [
+    { 
+      type: 'command', 
+      text: 'npm install -g fluid-cli',
+      delay: 500
+    },
+    { 
+      type: 'output', 
+      content: [
+        '<span class="text-slate-400">+ fluid-cli@1.0.4</span>',
+        '<span class="text-slate-400">added 12 packages in 2s</span>'
+      ],
+      delay: 400
+    },
+    { 
+      type: 'command', 
+      text: 'fluid init',
+      delay: 800
+    },
+    { 
+      type: 'output', 
+      content: [
+        '<span class="text-blue-400">?</span> Project name: <span class="text-white">awesome-dapp</span>',
+        '<span class="text-blue-400">?</span> Framework: <span class="text-white">React / Next.js</span>',
+        '<span class="text-blue-400">?</span> Storage: <span class="text-white">Permanent (Parmaweb)</span>'
+      ],
+      delay: 600
+    },
+    { 
+      type: 'command', 
+      text: 'fluid deploy',
+      delay: 800
+    },
+    { 
+      type: 'output', 
+      content: [
+        '<span class="text-slate-300">> Building project...</span>',
+        '<span class="text-slate-300">> Uploading assets to Shard 1...</span>',
+        '<span class="text-slate-300">> Uploading assets to Shard 2...</span>',
+        '<span class="text-slate-300">> Verifying integrity...</span>'
+      ],
+      delay: 600
+    },
+    { 
+      type: 'output', 
+      content: [
+        '<span class="text-emerald-400 font-bold">✔ Deployment Successful!</span>',
+        'Access your app at: <span class="underline text-blue-400 cursor-pointer hover:text-blue-300">https://fluid.link/awesome-dapp</span>'
+      ],
+      delay: 400
+    }
+  ];
+
+  useEffect(() => {
+    let timeoutId: any;
+    
+    // Safety check to prevent rapid re-renders or zombie updates
+    let isMounted = true;
+
+    const processStep = async () => {
+      if (stepIndex >= script.length) {
+         // Reset loop after a longer delay
+         timeoutId = setTimeout(() => {
+            if (isMounted) {
+                setTerminalHistory([]);
+                setStepIndex(0);
+            }
+         }, 8000);
+         return;
+      }
+
+      const step = script[stepIndex];
+
+      if (step.type === 'command') {
+        if (isMounted) setIsTyping(true);
+        let charIndex = 0;
+        
+        const typeChar = () => {
+          if (!isMounted) return;
+          
+          if (charIndex <= (step.text as string).length) {
+            setCurrentLine((step.text as string).slice(0, charIndex));
+            charIndex++;
+            timeoutId = setTimeout(typeChar, 50 + Math.random() * 30); // Random typing speed
+          } else {
+            setIsTyping(false);
+            timeoutId = setTimeout(() => {
+               if (isMounted) {
+                   setTerminalHistory(prev => [...prev, { type: 'command', content: step.text as string }]);
+                   setCurrentLine('');
+                   setStepIndex(prev => prev + 1);
+               }
+            }, 300);
+          }
+        };
+        typeChar();
+      } else {
+        timeoutId = setTimeout(() => {
+           if (isMounted) {
+               setTerminalHistory(prev => [...prev, { type: 'output', content: step.content as string[] }]);
+               setStepIndex(prev => prev + 1);
+           }
+        }, step.delay);
+      }
+    };
+
+    // Only run if not currently typing a command (handled by recursion in typeChar)
+    if (!isTyping) {
+        processStep();
+    }
+
+    return () => {
+        isMounted = false;
+        clearTimeout(timeoutId);
+    };
+  }, [stepIndex]); // Dependency on stepIndex ensures sequential execution
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [terminalHistory, currentLine]);
+
   return (
     <div className="min-h-screen pt-28 pb-16">
       
@@ -30,48 +166,64 @@ const HostPage: React.FC = () => {
       {/* Terminal Visual */}
       <section className="max-w-5xl mx-auto px-4 mb-24">
          <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-2xl overflow-hidden font-mono text-sm">
+            {/* Terminal Header */}
             <div className="bg-slate-800 px-4 py-2 flex items-center gap-2 border-b border-slate-700">
                <div className="w-3 h-3 rounded-full bg-red-500"></div>
                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-               <div className="ml-4 text-slate-400">user@dev:~/my-fluid-app</div>
+               <div className="ml-4 text-slate-400 text-xs md:text-sm">user@dev:~/my-fluid-app</div>
             </div>
-            <div className="p-6 text-slate-300 space-y-2">
-               <div className="flex">
-                  <span className="text-green-400 mr-2">$</span>
-                  <span>npm install -g fluid-cli</span>
-               </div>
-               <div className="text-slate-500">
-                  + fluid-cli@1.0.4 <br/>
-                  added 12 packages in 2s
-               </div>
-               <div className="flex">
-                  <span className="text-green-400 mr-2">$</span>
-                  <span>fluid init</span>
-               </div>
-               <div className="text-blue-400">
-                  ? Project name: <span className="text-white">awesome-dapp</span> <br/>
-                  ? Framework: <span className="text-white">React / Next.js</span> <br/>
-                  ? Storage: <span className="text-white">Permanent (Parmaweb)</span>
-               </div>
-               <div className="flex">
-                  <span className="text-green-400 mr-2">$</span>
-                  <span>fluid deploy</span>
-               </div>
-               <div className="text-slate-300">
-                  > Building project... <br/>
-                  > Uploading assets to Shard 1... <br/>
-                  > Uploading assets to Shard 2... <br/>
-                  > Verifying integrity...
-               </div>
-               <div className="text-emerald-400 font-bold mt-4">
-                  ✔ Deployment Successful! <br/>
-                  Access your app at: <a href="#" className="underline">https://fluid.link/awesome-dapp</a>
-               </div>
-               <div className="flex animate-pulse">
-                  <span className="text-green-400 mr-2">$</span>
-                  <span className="w-3 h-5 bg-slate-500 block"></span>
-               </div>
+            
+            {/* Terminal Body */}
+            <div 
+                ref={scrollRef}
+                className="p-6 text-slate-300 space-y-1 h-[400px] overflow-y-auto scroll-smooth"
+            >
+               {terminalHistory.map((item, index) => (
+                   <div key={index}>
+                       {item.type === 'command' ? (
+                           <div className="flex flex-wrap">
+                               <span className="text-green-400 mr-2 shrink-0">$</span>
+                               <span>{item.content as string}</span>
+                           </div>
+                       ) : (
+                           <div className="flex flex-col">
+                               {Array.isArray(item.content) ? (
+                                   item.content.map((line, i) => (
+                                       <div key={i} dangerouslySetInnerHTML={{ __html: line }} />
+                                   ))
+                               ) : (
+                                   <div dangerouslySetInnerHTML={{ __html: item.content as string }} />
+                               )}
+                           </div>
+                       )}
+                   </div>
+               ))}
+
+               {/* Current active typing line */}
+               {isTyping && (
+                   <div className="flex flex-wrap">
+                       <span className="text-green-400 mr-2 shrink-0">$</span>
+                       <span>{currentLine}</span>
+                       <span className="animate-pulse bg-slate-400 w-2 h-5 inline-block ml-1 align-middle"></span>
+                   </div>
+               )}
+
+               {/* Idle cursor if not typing but waiting */}
+               {!isTyping && stepIndex < script.length && (
+                   <div className="flex">
+                        {/* Hidden placeholder to keep layout if needed, or just cursor */}
+                        <span className="animate-pulse bg-slate-400 w-2 h-5 inline-block align-middle mt-1"></span>
+                   </div>
+               )}
+               
+               {/* Final prompt state */}
+               {!isTyping && stepIndex >= script.length && (
+                   <div className="flex">
+                       <span className="text-green-400 mr-2">$</span>
+                       <span className="animate-pulse bg-slate-400 w-2 h-5 inline-block align-middle mt-1"></span>
+                   </div>
+               )}
             </div>
          </div>
       </section>
