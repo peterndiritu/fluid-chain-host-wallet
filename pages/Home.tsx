@@ -1,56 +1,10 @@
-import React, { Suspense } from 'react';
+
+import React from 'react';
+import GeminiImageEditor from '../components/GeminiImageEditor';
+import FluidAssistant from '../components/FluidAssistant';
+import HowItWorks from '../components/HowItWorks';
+import WalletPreview from '../components/WalletPreview';
 import { Shield, Zap, Layers, Code2, Globe, Smartphone, Wallet, ArrowRight, Play, Gitlab, Flame, Box, Blocks, ShieldCheck, Coins, Triangle, Cloud } from 'lucide-react';
-import CountUp from 'react-countup';
-
-// Lazy-load heavy components
-const GeminiImageEditor = React.lazy(() => import('../components/GeminiImageEditor'));
-const FluidAssistant = React.lazy(() => import('../components/FluidAssistant'));
-const HowItWorks = React.lazy(() => import('../components/HowItWorks'));
-
-// Reusable Feature Card
-interface FeatureCardProps {
-  icon: React.FC<any>;
-  title: string;
-  description: string;
-  badge?: string;
-}
-
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description, badge }) => (
-  <div className="scroll-card bg-white/5 dark:bg-slate-900/40 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/20 dark:border-slate-800/50 hover:border-cyan-500/50 transition-colors group">
-     <div className="flex justify-between items-start mb-4">
-        <div className="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center text-cyan-400">
-           <Icon size={20} />
-        </div>
-        {badge && <span className="px-3 py-1 rounded-full bg-slate-800/50 text-cyan-400 text-xs font-bold border border-slate-700/50">{badge}</span>}
-     </div>
-     <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">{title}</h3>
-     <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">{description}</p>
-  </div>
-);
-
-// Reusable Metric Card
-interface MetricCardProps {
-  icon: React.FC<any>;
-  label: string;
-  value: number | string;
-  suffix?: string;
-  description?: string;
-  color?: string;
-}
-
-const MetricCard: React.FC<MetricCardProps> = ({ icon: Icon, label, value, suffix, description, color = 'cyan' }) => (
-  <div className={`scroll-card bg-white/40 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 dark:border-slate-700/50 hover:border-${color}-400 transition-colors shadow-sm group`}>
-    <div className={`w-10 h-10 bg-${color}-500/20 rounded-lg flex items-center justify-center mb-3 text-${color}-500 group-hover:scale-110 transition-transform`}>
-      <Icon size={20} />
-    </div>
-    <p className="text-slate-500 dark:text-slate-400 text-sm mb-1 font-bold">{label}</p>
-    <div className="flex items-end justify-between">
-      {typeof value === 'number' ? <CountUp end={value} duration={2} separator="," /> : value}
-      {suffix && <span className={`text-xs text-emerald-500 font-bold mb-1.5`}>{suffix}</span>}
-    </div>
-    {description && <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{description}</p>}
-  </div>
-);
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -95,109 +49,86 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   ];
 
   return (
-    <>
+    <div className="min-h-screen pt-28 pb-16">
+
       {/* Hero Section */}
-      <section id="presale" className="relative pt-32 pb-6 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px]"></div>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 text-center">
+        <div className="inline-block px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-6 animate-pulse">
+          <span className="text-indigo-500 font-bold uppercase tracking-wider text-sm">Parmaweb Protocol V1</span>
         </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center">
-          <button
+        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white mb-6">
+          The Permanent Web. <br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Unstoppable Hosting.</span>
+        </h1>
+        <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10">
+          Deploy full-stack applications to the Fluid Blockchain. Censorship-resistant, 100% uptime, and one-time payment for eternal storage.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <button 
             onClick={() => onNavigate('buy')}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/40 border border-slate-700/50 mb-6 animate-fade-in-up backdrop-blur-sm hover:bg-slate-800/50 transition-colors group cursor-pointer"
+            className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-full hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25"
           >
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="text-emerald-400 text-xs font-bold tracking-wide uppercase group-hover:text-emerald-300">Presale Stage 1 Live</span>
-            <ArrowRight size={14} className="text-emerald-400 group-hover:translate-x-1 transition-transform" />
+            Start Deploying
           </button>
+          <button 
+            onClick={() => onNavigate('docs')}
+            className="px-8 py-4 bg-transparent border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+          >
+            Read Documentation
+          </button>
+        </div>
+      </section>
 
-          <h1 className="text-5xl lg:text-7xl font-extrabold leading-tight mb-4 text-slate-900 dark:text-white tracking-tight">
-            Fluid <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400">Store. Spend. Host Infinitely.</span>
-          </h1>
+      {/* Wallet Preview Section */}
+      <WalletPreview />
 
-          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed font-medium">
-            The first Layer-1 blockchain delivering <strong>2M+ TPS</strong> with zero-downtime hosting. Secure, Multichain Non-Custodial Crypto Wallet.
-          </p>
-
-          <div className="mb-12">
-            <button
-              onClick={() => onNavigate('buy')}
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-lg rounded-xl shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-1"
-            >
-              Buy FLUID
-            </button>
-          </div>
-
-          {/* Partners Marquee */}
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-800/50 w-full overflow-hidden">
-            <p className="text-xs text-center text-slate-500 uppercase font-bold tracking-widest mb-3">Partners & Technologies</p>
-
-            <div className="relative flex overflow-x-hidden group max-w-[100vw]">
-              <div className="animate-marquee-reverse flex items-center gap-12 whitespace-nowrap opacity-60 grayscale hover:grayscale-0 transition-all duration-500 hover:opacity-100 pr-12">
-                {partners.map((p, i) => (
-                  <div key={`p1-${i}`} className="flex items-center gap-3">
-                    <p.icon size={24} className="text-slate-800 dark:text-white" />
-                    <span className="font-bold text-xl text-slate-800 dark:text-white">{p.name}</span>
-                  </div>
-                ))}
-                {partners.map((p, i) => (
-                  <div key={`p2-${i}`} className="flex items-center gap-3">
-                    <p.icon size={24} className="text-slate-800 dark:text-white" />
-                    <span className="font-bold text-xl text-slate-800 dark:text-white">{p.name}</span>
-                  </div>
-                ))}
+      {/* Features Grid */}
+      <section className="bg-slate-50 dark:bg-slate-900/50 py-24 border-y border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-extrabold text-center mb-16 text-slate-900 dark:text-white">Why Host on Fluid?</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Feature Cards */}
+            <div className="p-8 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-indigo-500/50 transition-colors group">
+              <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 text-indigo-500 group-hover:scale-110 transition-transform">
+                <Shield size={24} />
               </div>
-
-              <div className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-gray-50 dark:from-slate-950 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-gray-50 dark:from-slate-950 to-transparent z-10 pointer-events-none"></div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">Censorship Resistant</h3>
+              <p className="text-slate-600 dark:text-slate-400">
+                Data is stored immutably across a distributed network of nodes. No central authority can take your site down.
+              </p>
+            </div>
+            <div className="p-8 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-indigo-500/50 transition-colors group">
+              <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 text-purple-500 group-hover:scale-110 transition-transform">
+                <Cloud size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">100% Uptime</h3>
+              <p className="text-slate-600 dark:text-slate-400">
+                Redundant sharding ensures your content is always available, even if multiple nodes go offline simultaneously.
+              </p>
+            </div>
+            <div className="p-8 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-indigo-500/50 transition-colors group">
+              <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6 text-emerald-500 group-hover:scale-110 transition-transform">
+                <Wallet size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">One-Time Payment</h3>
+              <p className="text-slate-600 dark:text-slate-400">
+                Pay once in $FLUID tokens to store data forever. No monthly subscription fees for storage.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Performance Metrics */}
-      <section className="py-4 bg-transparent border-y border-slate-200 dark:border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MetricCard icon={Zap} label="Peak TPS" value={2000000} suffix="+∞%" />
-          <MetricCard icon={Layers} label="Scalability" value="Sharded" suffix="Linear" />
-          <MetricCard icon={Code2} label="Finality" value="~1s" suffix="Instant" />
-          <MetricCard icon={Smartphone} label="Mobile" value="Native" suffix="Optimized" />
-        </div>
-      </section>
+      {/* How It Works Section */}
+      <HowItWorks />
 
-      {/* Revolutionary Features */}
-      <section id="features" className="py-8 bg-transparent relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8">
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 text-slate-900 dark:text-white text-cyan-400">Revolutionary Features</h2>
-          <p className="text-slate-700 dark:text-slate-300 max-w-2xl mx-auto font-medium text-lg">
-            Fluid Chain redefines what's possible in blockchain technology with groundbreaking innovations
-          </p>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          <FeatureCard icon={Zap} title="Ultra-Fast Processing" description="Revolutionary architecture enabling 1+ billion transactions per second with sub-millisecond finality." badge="1B+ TPS"/>
-          <FeatureCard icon={Shield} title="Military-Grade Security" description="Advanced cryptographic protocols and quantum-resistant algorithms ensure maximum security for hosting and assets." badge="Quantum-Safe"/>
-          <FeatureCard icon={Code2} title="Full EVM Compatibility" description="Seamlessly deploy existing Ethereum smart contracts without any modifications. Essential for DeFi interoperability." badge="100% Compatible"/>
-          <FeatureCard icon={Layers} title="Infinite Scalability" description="Dynamic sharding and parallel processing scale automatically with network demand, perfect for Parmaweb hosting." badge="Auto-Scale"/>
-          <FeatureCard icon={Wallet} title="Universal Wallet Support" description="Works with MetaMask, WalletConnect, and all major EVM-compatible wallets." badge="All Wallets"/>
-          <FeatureCard icon={Globe} title="Global Infrastructure" description="Distributed node network spanning 150+ countries for optimal performance worldwide." badge="150+ Countries"/>
-        </div>
-      </section>
+      {/* Fluid Assistant Section */}
+      <FluidAssistant />
 
-      {/* Lazy-loaded Sections */}
-      <Suspense fallback={<div className="text-center py-20">Loading How It Works...</div>}>
-        <HowItWorks />
-      </Suspense>
+      {/* AI Editor Section */}
+      <GeminiImageEditor />
 
-      <Suspense fallback={<div className="text-center py-20">Loading Fluid Assistant...</div>}>
-        <FluidAssistant />
-      </Suspense>
-    </>
+    </div>
   );
 };
 
