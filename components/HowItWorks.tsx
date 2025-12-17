@@ -8,7 +8,7 @@ const HowItWorks: React.FC = () => {
         
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 text-slate-900 dark:text-white">HOW HOSTING WORKS on Fluid Blockchain</h2>
+          <h2 className="text-3xl md:text-5xl font-extrabold mb-4 text-slate-900 dark:text-white">Hosting</h2>
           <p className="text-slate-700 dark:text-slate-300 max-w-2xl mx-auto text-lg font-medium">
             A deep dive into our revolutionary permanent storage architecture
           </p>

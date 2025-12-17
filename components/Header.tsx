@@ -110,22 +110,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer group" onClick={() => handleLinkClick('home')}>
-            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 transition-transform duration-300 group-hover:scale-110">
-                <defs>
-                  <linearGradient id="header_logo_gradient" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#22d3ee" />
-                    <stop offset="100%" stopColor="#2563eb" />
-                  </linearGradient>
-                  <mask id="header_logo_mask">
-                     <rect width="100" height="100" fill="white"/>
-                     <path d="M46 105 Q 26 55 48 15" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
-                     <path d="M54 105 Q 74 55 52 30" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
-                  </mask>
-                </defs>
-                <path d="M50 5 C 50 5 15 50 15 75 C 15 90 30 100 50 100 C 70 100 85 90 85 75 C 85 50 50 5 50 5 Z" fill="url(#header_logo_gradient)" mask="url(#header_logo_mask)" />
+            {/* New Fluid Logo - Slanted Bars */}
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="mr-2 text-slate-900 dark:text-white transition-transform duration-300 group-hover:scale-110">
+                <path d="M55 20 H90 A5 5 0 0 1 90 35 H55 A5 5 0 0 1 55 20 Z" transform="skewX(-20)" />
+                <path d="M40 42 H85 A5 5 0 0 1 85 57 H40 A5 5 0 0 1 40 42 Z" transform="skewX(-20)" />
+                <path d="M25 64 H60 A5 5 0 0 1 60 79 H25 A5 5 0 0 1 25 64 Z" transform="skewX(-20)" />
             </svg>
             <span className="font-bold text-xl tracking-tighter text-slate-900 dark:text-white transition-colors">
-              FLUID
+              fluid
             </span>
           </div>
 

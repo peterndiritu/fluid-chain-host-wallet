@@ -4,19 +4,10 @@ import { Download, Mail, Facebook } from 'lucide-react';
 const Footer: React.FC = () => {
   const handleDownloadLogo = () => {
     const svgContent = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100">
-        <defs>
-          <linearGradient id="grad" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
-          </linearGradient>
-          <mask id="m">
-             <rect width="100" height="100" fill="white"/>
-             <path d="M46 105 Q 26 55 48 15" stroke="black" stroke-width="5" fill="none" stroke-linecap="round" />
-             <path d="M54 105 Q 74 55 52 30" stroke="black" stroke-width="5" fill="none" stroke-linecap="round" />
-          </mask>
-        </defs>
-        <path d="M50 5 C 50 5 15 50 15 75 C 15 90 30 100 50 100 C 70 100 85 90 85 75 C 85 50 50 5 50 5 Z" fill="url(#grad)" mask="url(#m)" />
+      <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" fill="white">
+        <path d="M55 20 H90 A5 5 0 0 1 90 35 H55 A5 5 0 0 1 55 20 Z" transform="skewX(-20)" />
+        <path d="M40 42 H85 A5 5 0 0 1 85 57 H40 A5 5 0 0 1 40 42 Z" transform="skewX(-20)" />
+        <path d="M25 64 H60 A5 5 0 0 1 60 79 H25 A5 5 0 0 1 25 64 Z" transform="skewX(-20)" />
       </svg>
     `;
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
@@ -87,23 +78,14 @@ const Footer: React.FC = () => {
             className="group relative flex items-center justify-center mb-8 mx-auto"
             title="Download Brand Asset"
           >
-              <div className="w-12 h-12 flex items-center justify-center mr-2 transition-all group-hover:scale-110 z-10">
-                 <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="footer_logo_gradient" x1="50" y1="0" x2="50" y2="100" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#22d3ee" />
-                        <stop offset="100%" stopColor="#2563eb" />
-                      </linearGradient>
-                      <mask id="footer_logo_mask">
-                         <rect width="100" height="100" fill="white"/>
-                         <path d="M46 105 Q 26 55 48 15" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
-                         <path d="M54 105 Q 74 55 52 30" stroke="black" strokeWidth="5" fill="none" strokeLinecap="round" />
-                      </mask>
-                    </defs>
-                    <path d="M50 5 C 50 5 15 50 15 75 C 15 90 30 100 50 100 C 70 100 85 90 85 75 C 85 50 50 5 50 5 Z" fill="url(#footer_logo_gradient)" mask="url(#footer_logo_mask)" />
-                </svg>
+              <div className="w-12 h-12 flex items-center justify-center mr-2 transition-all group-hover:scale-110 z-10 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400">
+                 <svg width="48" height="48" viewBox="0 0 100 100" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M55 20 H90 A5 5 0 0 1 90 35 H55 A5 5 0 0 1 55 20 Z" transform="skewX(-20)" />
+                    <path d="M40 42 H85 A5 5 0 0 1 85 57 H40 A5 5 0 0 1 40 42 Z" transform="skewX(-20)" />
+                    <path d="M25 64 H60 A5 5 0 0 1 60 79 H25 A5 5 0 0 1 25 64 Z" transform="skewX(-20)" />
+                 </svg>
               </div>
-              <span className="font-bold text-2xl tracking-tighter text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">FLUID</span>
+              <span className="font-bold text-2xl tracking-tighter text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">fluid</span>
               
               <div className="absolute -right-32 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none flex items-center gap-1">
                   <Download size={10} /> Click to Download
