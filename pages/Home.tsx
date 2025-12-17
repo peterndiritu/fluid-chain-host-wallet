@@ -1,4 +1,3 @@
-
 import React from 'react';
 import GeminiImageEditor from '../components/GeminiImageEditor';
 import FluidAssistant from '../components/FluidAssistant';
@@ -81,8 +80,7 @@ Host apps forever on the Fluid Blockchain with unmatched speed and security.
       </section>
 
       {/* Wallet Preview Section */}
-      <WalletPreview />
-
+<WalletPreview onNavigate={onNavigate} />
       {/* Features Grid */}
       <section className="bg-slate-50 dark:bg-slate-900/50 py-24 border-y border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
