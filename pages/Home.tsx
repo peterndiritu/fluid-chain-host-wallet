@@ -197,10 +197,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <Suspense fallback={<div className="text-center py-20">Loading Fluid Assistant...</div>}>
         <FluidAssistant />
       </Suspense>
-
-      <Suspense fallback={<div className="text-center py-20">Loading Gemini AI Editor...</div>}>
-        <GeminiImageEditor />
-      </Suspense>
     </>
   );
 };
