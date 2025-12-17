@@ -59,11 +59,11 @@ const HostPage: React.FC = () => {
                   <span>fluid deploy</span>
                </div>
                <div className="text-slate-300">
-                  > Building project... <br/>
-                  > Uploading assets to Shard 1... <br/>
-                  > Uploading assets to Shard 2... <br/>
-                  > Verifying integrity...
-               </div>
+  {">"} Building project... <br />
+  {">"} Uploading assets to Shard 1... <br />
+  {">"} Uploading assets to Shard 2... <br />
+  {">"} Verifying integrity...
+</div>
                <div className="text-emerald-400 font-bold mt-4">
                   ✔ Deployment Successful! <br/>
                   Access your app at: <a href="#" className="underline">https://fluid.link/awesome-dapp</a>
