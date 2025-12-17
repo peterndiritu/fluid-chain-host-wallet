@@ -1,11 +1,12 @@
 
 import React from "react";
 import { ArrowRight } from "lucide-react";
-import { useRouter } from "next/router";
 
-const WalletPreview: React.FC = () => {
-  const router = useRouter();
+interface WalletPreviewProps {
+  onNavigate: (page: string) => void;
+}
 
+const WalletPreview: React.FC<WalletPreviewProps> = ({ onNavigate }) => {
   return (
     <section className="py-20 bg-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,7 +24,7 @@ const WalletPreview: React.FC = () => {
             </p>
 
             <button
-              onClick={() => router.push("/wallet")}
+              onClick={() => onNavigate("wallet")}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-xl shadow-lg transition-all"
             >
               Open Full Wallet
