@@ -57,11 +57,12 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           <span className="text-indigo-500 font-bold uppercase tracking-wider text-sm">Parmaweb Protocol V1</span>
         </div>
         <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white mb-6">
-          The Permanent Web. <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Unstoppable Hosting.</span>
+          FLUID. <br/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Store. Spend. Host. Eternally.</span>
         </h1>
         <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10">
-          Deploy full-stack applications to the Fluid Blockchain. Censorship-resistant, 100% uptime, and one-time payment for eternal storage.
+          One Payment. Infinite Possibilities. <br/>
+Host apps forever on the Fluid Blockchain with unmatched speed and security.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button 
