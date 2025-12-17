@@ -4,7 +4,7 @@ import { createThirdwebClient } from "thirdweb";
 import { inAppWallet, createWallet } from "thirdweb/wallets";
 
 const client = createThirdwebClient({
-  clientId: "....",
+  clientId: "9d30a8dffb4aac7ac965e54d6b028699",
 });
 
 const wallets = [
